@@ -1,0 +1,31 @@
+todo.txt
+
+***** Rosedale abbey fixen ****
+- Rails fixen, opnieuw ballasten en PCB bielzen maken.
+- pwm regelaar vervangen door buck converter
+  * UITZOEKEN OF DIT WEL HAALBAAR IS
+  * schakelkastje upgraden met rijrichting schakelaar.
+  * 
+- puntstuk relais vervangen door micro switches
+- nieuw kastje maken voor wissel besturing
+
+***** Programma *****
+ * code aanpassen voor nieuwe wisselbesturing
+ * test opstelling maken met LDR om waardes mee uit te lezen (LCD interface) ?
+ * default posities aanpassen voor rechte rijweg.
+ * Nieuwe rijregelaar code voor optrekken, afremmen, noodstoppen etc
+ * punt stuk relais code weghalen
+
+ ***** ELEKTRONISCH *****
+ * Nieuwe PCB maken met:
+   * uitneembare NANO
+   * I2C LCD interface voor debugging
+   * ( H brug IC? )
+   * extra analoge aansluitingen (minstens 18x)
+   * aansluiting spanning
+   * Dc-Dc converter extern houden.
+   * aansluiting Rails
+   * aansluiting PCA9695, of interne pca chip
+   * 6p6c aansluiting handregelaar
+   * 6p6c aansluiting wisselregelaar
+   * relais aansluitingen (onboard mcp23017) (NODIG? wat wil ik schakelen)

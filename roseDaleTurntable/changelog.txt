@@ -1,0 +1,11 @@
+roseDaleTurntable
+v0.0.0   Date/time:2022-01-02 20:12:04.654154
+Project assembled
+
+V1.0.0   Date/time:2022-01-02 20:48:58.198440
+Turntable rotates manually with 2 buttons
+There is no acceleration or brake delay and these are much needed to
+position the thingy
+
+done
+
