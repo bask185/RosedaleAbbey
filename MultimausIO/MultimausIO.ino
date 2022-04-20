@@ -1,10 +1,10 @@
-#include "io.h"
-#include "eeprom.h"
-#include "XpressNetMaster.h"
-#include "macros.h"
-#include "turnouts.h"
-#include "weistra.h"
+#include "src/io.h" // lacking, not in git?
+#include "src/XpressNetMaster.h"
+#include "src/macros.h"
+#include "src/turnouts.h"
+#include "src/weistra.h"
 #include "routes.h"
+#include "shuttle.h"
 
 const int F1_F4 = 0 ;
 const int F5_F8 = 0x80 ;
@@ -18,8 +18,14 @@ const int nSamples      =     10 ;  // *2ms
 uint16_t interval = 100 ;
 
 XpressNetMasterClass    Xnet ;
-
 Weistra throttle( enablePin, 50, 100 ) ; // 50-100Hz
+
+
+enum events
+{
+    settingPoint = 3,       // 0,1,2 are used for feedback, start and stop
+    settingSpeed,
+} ;
 
 uint8_t prevStates[6] = { 0, 0, 0, 0, 0, 0 } ;
 int8_t setPoint = 0 ;
@@ -62,6 +68,8 @@ uint8_t lookUpSpeed( uint8_t speed )
 }
 void notifyXNetLocoDrive28( uint16_t Address, uint8_t Speed )
 {
+    storeEvent( settingSpeed, Address, Speed ) ;
+
     setPoint = lookUpSpeed( Speed & 0b00011111 ) ;
     setPoint = map( setPoint, 0, 28, 0, SPEED_MAX ) ;           // map 28 speedsteps to 100 for weistra control
     if( Speed & 0x80 ) setPoint = -setPoint ;
@@ -93,6 +101,8 @@ void updateSpeed()                                              // handles speed
 
 void setOutput( uint8_t Address, uint8_t functions )
 {
+    storeEvent( settingPoint, Address, functions ) ;
+
     if( Address == 3) return ; // address 3 is unused
 
     uint8_t number = 1 ;
@@ -142,7 +152,6 @@ void setOutput( uint8_t Address, uint8_t functions )
 
 void notifyXNetLocoFunc1( uint16_t Address, uint8_t Func1 ) { setOutput( Address, Func1 | F1_F4 ) ; } // called from Xnet library
 void notifyXNetLocoFunc2( uint16_t Address, uint8_t Func2 ) { setOutput( Address, Func2 | F5_F8 ) ; }
-
 void notifyXNetLocoFunc3( uint16_t Address, uint8_t Func )
 {
     static uint8_t prevFunc = 0xFF ;
@@ -191,6 +200,16 @@ void shortCircuit()
         
     } END_REPEAT ;
 }
+
+void Event( uint8 type, uint16 address, uint8 data )
+{
+    switch( type )
+    {
+        case settingPoint: setOutput( address, data ) ; break ; 
+        case settingSpeed: notifyXNetLocoDrive28( address, data ) ; break ;
+    }
+}
+
 
 void setup()
 {

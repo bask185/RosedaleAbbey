@@ -536,7 +536,8 @@ void XpressNetMasterClass::XNetAnalyseReceived(void) {		//work on received data
 				//R�ckmeldung Schaltinformation
 				byte len = (XNetMsg[XNetheader] & 0x0F) / 2;	//each Adr and Data
 				for (byte i = 1; i <= len; i++) {
-					notifyXNetFeedback((XNetMsg[XNetheader+(i*2)-1] << 2) | ((XNetMsg[XNetheader+(i*2)] & B110) >> 1), XNetMsg[XNetheader+(i*2)]);
+					if( notifyXNetFeedback )
+						notifyXNetFeedback((XNetMsg[XNetheader+(i*2)-1] << 2) | ((XNetMsg[XNetheader+(i*2)] & B110) >> 1), XNetMsg[XNetheader+(i*2)]);
 					//XNetMsg[XNetdata2] = 0000 ABBP
 					//A = Weichenausgang(Spulenspannung EIN/AUS)
 					//BB = Adresse des Dekoderport 1..4

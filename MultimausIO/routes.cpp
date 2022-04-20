@@ -1,6 +1,6 @@
 #include "routes.h"
-#include "macros.h"
-#include "io.h"
+#include "src/macros.h"
+#include "src/io.h"
 
 
 extern void setOutput( uint8_t Address, uint8_t functions ) ;
@@ -38,7 +38,7 @@ void freeRoute()
     route = freed ;
 }
 
-uint8_t  getNewRoute ( uint8_t first, uint8_t second )
+uint8_t getNewRoute ( uint8_t first, uint8_t second )
 {
     if( second < first )                                                        // route 1 <> 9 is the same as route 9 <> 1, 
     {
