@@ -4,7 +4,13 @@
 #include "src/turnouts.h"
 #include "src/weistra.h"
 #include "routes.h"
-#include "shuttle.h"
+#include "event.h"
+
+enum events
+{
+    accessoryEvent = 3,       // 0,1,2 are used for feedback, start and stop
+    speedEvent,
+} ;
 
 const int F1_F4 = 0 ;
 const int F5_F8 = 0x80 ;
@@ -21,11 +27,7 @@ XpressNetMasterClass    Xnet ;
 Weistra throttle( enablePin, 50, 100 ) ; // 50-100Hz
 
 
-enum events
-{
-    settingPoint = 3,       // 0,1,2 are used for feedback, start and stop
-    settingSpeed,
-} ;
+
 
 uint8_t prevStates[6] = { 0, 0, 0, 0, 0, 0 } ;
 int8_t setPoint = 0 ;
@@ -68,7 +70,7 @@ uint8_t lookUpSpeed( uint8_t speed )
 }
 void notifyXNetLocoDrive28( uint16_t Address, uint8_t Speed )
 {
-    storeEvent( settingSpeed, Address, Speed ) ;
+    storeEvent( speedEvent, Address, Speed ) ;
 
     setPoint = lookUpSpeed( Speed & 0b00011111 ) ;
     setPoint = map( setPoint, 0, 28, 0, SPEED_MAX ) ;           // map 28 speedsteps to 100 for weistra control
@@ -101,9 +103,17 @@ void updateSpeed()                                              // handles speed
 
 void setOutput( uint8_t Address, uint8_t functions )
 {
-    storeEvent( settingPoint, Address, functions ) ;
-
     if( Address == 3) return ; // address 3 is unused
+    if( Address == 6 )
+    {
+        if( functions & 0b0001 ) startPlaying() ;
+        if( functions & 0b0010 ) stopPlaying() ;
+        if( functions & 0b0100 ) startRecording() ;
+        if( functions & 0b1000 ) stopRecording() ;
+        return ;
+    }
+
+    storeEvent( accessoryEvent,  Address, functions ) ; 
 
     uint8_t number = 1 ;
     uint8_t indexShift = 0 ;
@@ -136,11 +146,11 @@ void setOutput( uint8_t Address, uint8_t functions )
             if( functions & bitMask ) state = 1 ;    // on
             else                      state = 0 ;    // off        
 
-            if(      ioNumber <=  8 ) setTurnout( ioNumber - 1 , state ) ;             //  1 <->  8
-            else if( ioNumber <= 18 ) digitalWrite( relay[ioNumber-11], state^1 ) ;    // 11 <-> 18
-                                                                                       // 21 <-> 28  address 3 not used.
-            else if( ioNumber <= 38 ) setRoute( ioNumber - 31 ) ;                      // 31 <-> 38
-            //else if( ioNumber <= 38 ) runProgram( ioNumber - 31)                     // 41 <-> 48
+            if(      ioNumber <=  8 ) { setTurnout( ioNumber - 1 , state ) ;          }     //  1 <->  8
+            else if( ioNumber <= 18 ) { digitalWrite( relay[ioNumber-11], state^1 ) ; }     // 11 <-> 18
+                                                                                            // 21 <-> 28  address 3 not used.
+            else if( ioNumber <= 38 ) setRoute( ioNumber - 31 ) ;                           // 31 <-> 38
+            else if( ioNumber <= 48 ) ;                                                     // 41 <-> 48
 
             return ;
         }
@@ -201,15 +211,6 @@ void shortCircuit()
     } END_REPEAT ;
 }
 
-void Event( uint8 type, uint16 address, uint8 data )
-{
-    switch( type )
-    {
-        case settingPoint: setOutput( address, data ) ; break ; 
-        case settingSpeed: notifyXNetLocoDrive28( address, data ) ; break ;
-    }
-}
-
 
 void setup()
 {
@@ -225,6 +226,17 @@ void setup()
     Xnet.setPower( csNormal ) ;
 }
 
+void notifyEvent( uint8 type, uint16 address, uint8 data )                            // CALL BACK FUNCTION FROM EVENT.CPP
+{
+    switch( type )
+    {
+        case START:                                                         break ; // flash an led?
+        case speedEvent:        notifyXNetLocoDrive28(address, data) ;      break ; 
+        case accessoryEvent:    setOutput( address, data ) ;                break ;
+        case STOP:                                                          break ; // flash an led?
+    }
+}
+
 void loop()
 {
     Xnet.update() ;
@@ -235,7 +247,9 @@ void loop()
 
     turnOffServo() ;
 
-    layRoutes() ;
+    //layRoutes() ;
+
+    eventHandler() ;  
 }
 
 /* kabel
