@@ -1,6 +1,8 @@
 #include <EEPROM.h>
 #include "shuttle.h"
 
+#define beginAddress 0X0010
+
 typedef struct 				// 8 bytes per event
 {
 	uint8 	data1 ;
@@ -30,7 +32,7 @@ void startRecoring()
 {
     if( recordingDevice == idle )
     {
-        eeAddress = 0 ;                     // set EEPROM adres to 0
+        eeAddress = beginAddress ;                     // set EEPROM adres to 0
         recordingDevice = recording ;       
         prevTime = millis() ;               // record starting time
         recordEvent( START ) ;
@@ -49,7 +51,7 @@ void startPlaying()
 {
     if( recordingDevice == idle )
     {
-        eeAddress = 0 ;
+        eeAddress = beginAddress ;
         event.time2nextEvent = 10 ;
         prevTime = millis() ;
         recordingDevice = playing ;
