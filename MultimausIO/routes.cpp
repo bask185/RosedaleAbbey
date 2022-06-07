@@ -162,12 +162,10 @@ void layRoutes()
 
 void setRoute( uint8_t track )
 {    
-    track++ ;
-    
     if( route != freed ) return ;                                               // if route is not free, do not set a new one
 
-    if(      firstButton  == 0xFF ) firstButton  = track ;
-    else if( secondButton == 0xFF ) secondButton = track ;
+    if(      firstButton  == 0xFF ) firstButton  = track - 1 ;
+    else if( secondButton == 0xFF ) secondButton = track - 1 ;
 
     if( firstButton != 0xFF && secondButton != 0xFF )
     {
