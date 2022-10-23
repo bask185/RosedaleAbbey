@@ -3,15 +3,15 @@
 #include "io.h"
 #include "Adafruit_PWMServoDriver.h"
 
-#define INIT_ADDR       0X00
-#define ADDR_S1         0X01
-#define ADDR_S2         0X03
-#define ADDR_S3         0X05
-#define ADDR_S4         0X07
-#define ADDR_S5         0X09
-#define ADDR_S6         0X0B
-#define ADDR_S7         0X0D
-#define ADDR_S8         0X0F
+#define INIT_ADDR       0X0000
+#define ADDR_S1         0X0001
+#define ADDR_S2         0X0003
+#define ADDR_S3         0X0005
+#define ADDR_S4         0X0007
+#define ADDR_S5         0X0009
+#define ADDR_S6         0X000B
+#define ADDR_S7         0X000D
+#define ADDR_S8         0X000F
 
 Adafruit_PWMServoDriver servoDriver ;// = Adafruit_PWMServoDriver();
 

@@ -1,10 +1,9 @@
 #include <EEPROM.h>
 #include "event.h"
 
+#define beginAddress 0X0010
 
-//extern void message( String mess, uint16 val1, uint16 val2 ) ;
-
-typedef struct someName 				// 8 bytes per event
+typedef struct 				// 8 bytes per event
 {
 	uint8 	data1 ;
 	uint16 	data2 ;
@@ -33,7 +32,7 @@ void startRecording()
 {
     if( recordingDevice == idle )
     {
-        eeAddress = 0 ;                     // set EEPROM adres to 0
+        eeAddress = beginAddress ;                     // set EEPROM adres to 0
         recordingDevice = recording ;       
         prevTime = millis() ;               // record starting time
         storeEvent( START, 1, 1 ) ;
@@ -66,9 +65,8 @@ void startPlaying()
 {
     if( recordingDevice == idle )
     {
-        eeAddress = 0 ;
-        event = getEvent() ;            // should load the start event
-
+        eeAddress = beginAddress ;
+        event.time2nextEvent = 10 ;
         prevTime = millis() ;
         recordingDevice = playing ;
     }
